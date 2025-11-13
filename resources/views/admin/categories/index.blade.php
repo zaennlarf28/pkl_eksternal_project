@@ -19,7 +19,7 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th style="width: 60px;">#</th>
+                            <th style="width: 60px;">No</th>
                             <th>Nama Kategori</th>
                             <th class="text-center" style="width: 180px;">Aksi</th>
                         </tr>

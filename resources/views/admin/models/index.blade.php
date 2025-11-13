@@ -31,7 +31,7 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th style="width: 60px;">#</th>
+                            <th style="width: 60px;">No</th>
                             <th>Gambar</th>
                             <th>Nama Model</th>
                             <th>Kategori</th>

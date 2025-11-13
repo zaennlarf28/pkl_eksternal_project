@@ -21,10 +21,13 @@ Route::get('/', function () {
 // ========================
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // 🧩 Pilih model produk
-    Route::get('/models', [App\Http\Controllers\ModelSelectController::class, 'index'])->name('models.index');
-    Route::get('/models/{model}', [App\Http\Controllers\ModelSelectController::class, 'select'])->name('models.select');
-    
+   // Semua model
+    Route::get('/models', [ModelSelectController::class, 'index'])->name('models.index');
+
+    // Pilih model
+    Route::get('/models/{model}', [ModelSelectController::class, 'select'])->name('models.select');
+    Route::get('/models/search', [App\Http\Controllers\ModelSelectController::class, 'search'])->name('models.search');
+
     // 📊 Dashboard & Profile
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -60,5 +63,13 @@ Route::get('/check', function () {
     return 'Laravel OK';
 });
 Route::get('/models-select', [App\Http\Controllers\ModelSelectController::class, 'index']);
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
 
 require __DIR__ . '/auth.php';

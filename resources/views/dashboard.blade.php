@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-semibold">My Designs</h1>
 
       <!-- 🔹 Tombol New Design -->
-      <a href="{{ url('models-select')}}" 
+      <a href="{{ route('models.index') }}" 
          class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
         ➕ New Design
       </a>
