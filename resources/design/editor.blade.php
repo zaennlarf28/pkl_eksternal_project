@@ -8,19 +8,14 @@
       <!-- Toolbar -->
       <div class="flex flex-wrap justify-center gap-2 bg-gray-50 p-3 rounded-lg shadow w-full mb-4">
         <button id="addText" class="btn-tool bg-blue-500 hover:bg-blue-600">Add Text</button>
-
         <label class="btn-tool bg-gray-600 hover:bg-gray-700 cursor-pointer">
           Upload Image
           <input type="file" id="uploadImage" class="hidden" accept="image/*">
         </label>
-
         <button id="undo" class="btn-tool bg-yellow-500 hover:bg-yellow-600">Undo</button>
         <button id="redo" class="btn-tool bg-yellow-500 hover:bg-yellow-600">Redo</button>
-
         <button id="deleteObj" class="btn-tool bg-red-500 hover:bg-red-600">Delete</button>
         <button id="clearAll" class="btn-tool bg-red-700 hover:bg-red-800">Clear</button>
-
-        <button id="saveDesign" class="btn-tool bg-green-500 hover:bg-green-600">Save</button>
         <button id="exportPNG" class="btn-tool bg-purple-500 hover:bg-purple-600">Export PNG</button>
       </div>
 
@@ -39,22 +34,16 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const canvas = new fabric.Canvas('fabricCanvas', { preserveObjectStacking: true });
-      @if($design && $design->fabric_json)
-  canvas.loadFromJSON({!! $design->fabric_json !!}, canvas.renderAll.bind(canvas));
-@endif
 
-
-      // 🔹 Background model: auto-scale (lebih kecil biar gak nutup semua)
+      // 🔹 Tambahkan background model kalau ada
       @if($model && $model->image)
         fabric.Image.fromURL('{{ asset('storage/'.$model->image) }}', (img) => {
-          const scale = 0.8 * canvas.width / img.width; // skala lebih kecil
-          img.scale(scale);
-          img.set({ left: canvas.width / 2 - (img.width * scale) / 2, top: 40 });
+          img.scaleToWidth(canvas.width);
           canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
         });
       @endif
 
-      // 🔄 Undo/Redo stack
+      // Undo/Redo stack
       let undoStack = [], redoStack = [];
       const saveState = () => { redoStack = []; undoStack.push(JSON.stringify(canvas.toJSON())); };
       const loadState = (json) => canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
@@ -77,15 +66,15 @@
         }
       };
 
-      // 🖋️ Add Text
+      // Add Text
       document.getElementById('addText').onclick = () => {
         const text = new fabric.IText('Tulis di sini...', {
-          left: 100, top: 100, fontSize: 32, fill: '#222', fontFamily: 'Poppins'
+          left: 100, top: 100, fontSize: 32, fill: '#222'
         });
         canvas.add(text).setActiveObject(text);
       };
 
-      // 🖼 Upload Image
+      // Upload Image
       document.getElementById('uploadImage').onchange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -100,7 +89,7 @@
         reader.readAsDataURL(file);
       };
 
-      // 🗑 Delete & Clear
+      // Delete & Clear
       document.getElementById('deleteObj').onclick = () => {
         const obj = canvas.getActiveObject();
         if (obj) canvas.remove(obj);
@@ -109,38 +98,7 @@
         if (confirm('Hapus semua desain?')) canvas.clear();
       };
 
-      // Save Design
-document.getElementById('saveDesign').onclick = async () => {
-  const title = prompt("Nama desain kamu:", "{{ $design->title ?? 'My Design' }}");
-  if (!title) return;
-
-  const res = await fetch("{{ route('design.save') }}", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRF-TOKEN": "{{ csrf_token() }}"
-    },
-    body: JSON.stringify({
-      id: {{ $design->id ?? 'null' }},
-      title,
-      fabric_json: JSON.stringify(canvas.toJSON()),
-      model_id: {{ $model?->id ?? 'null' }}
-    })
-  });
-
-  const data = await res.json();
-  if (data.success) {
-    alert("✅ Design saved!");
-    if (!{{ $design ? 'true' : 'false' }}) {
-      window.location.href = `/editor/${data.id}`;
-    }
-  } else {
-    alert("❌ Gagal menyimpan desain!");
-  }
-};
-
-
-      // 📤 Export PNG
+      // Export PNG
       document.getElementById('exportPNG').onclick = () => {
         const link = document.createElement('a');
         link.href = canvas.toDataURL({ format: 'png', quality: 1 });

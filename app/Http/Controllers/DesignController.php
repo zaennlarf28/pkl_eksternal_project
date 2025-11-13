@@ -3,38 +3,53 @@
 namespace App\Http\Controllers;
 
 use App\Models\Design;
+use App\Models\ModelProduct;
 use Illuminate\Http\Request;
 
 class DesignController extends Controller
 {
-    public function editor($id = null)
-    {
-        $design = $id ? Design::findOrFail($id) : null;
-        return view('editor', compact('design'));
+   
+   public function editor(Request $request, $id = null)
+{
+    $design = $id ? Design::findOrFail($id) : null;
+
+    // cari model
+    $model = null;
+    if ($request->has('model')) {
+        $model = ModelProduct::find($request->get('model'));
+    } elseif ($design && $design->model_id) {
+        $model = $design->model;
     }
 
-    public function save(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string',
-            'fabric_json' => 'required|json',
-        ]);
+    return view('editor', compact('design', 'model'));
+}
 
-        $design = Design::updateOrCreate(
-            ['id' => $request->id ?: null, 'user_id' => auth()->id()],
-            [
-                'title' => $validated['title'],
-                'fabric_json' => $validated['fabric_json'],
-                'user_id' => auth()->id(),
-            ]
-        );
+public function save(Request $request)
+{
+    $data = $request->validate([
+        'id' => 'nullable|exists:designs,id',
+        'title' => 'required|string|max:255',
+        'fabric_json' => 'required|string',
+        'model_id' => 'nullable|exists:model_products,id',
+    ]);
 
-        return response()->json([
-            'success' => true,
-            'id' => $design->id,
-            'title' => $design->title,
-        ]);
-    }
+    $design = $request->id
+        ? auth()->user()->designs()->findOrFail($request->id)
+        : auth()->user()->designs()->create();
+
+    $design->update([
+    'title' => $data['title'],
+    'fabric_json' => $data['fabric_json'],
+    'model_id' => $data['model_id'] ?? null,
+]);
+
+
+    return response()->json([
+        'success' => true,
+        'id' => $design->id,
+        'title' => $design->title,
+    ]);
+}
 
     public function upload(Request $request)
     {

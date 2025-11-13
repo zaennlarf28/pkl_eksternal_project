@@ -1,45 +1,43 @@
 <x-app-layout>
   <div class="p-6">
-    <h1 class="text-2xl font-semibold mb-4">My Designs</h1>
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-semibold">My Designs</h1>
 
-    {{-- 🔔 Notifikasi sukses --}}
-    @if(session('success'))
-      <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
-        {{ session('success') }}
-      </div>
-    @endif
+      <!-- 🔹 Tombol New Design -->
+      <a href="{{ url('models-select')}}" 
+         class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+        ➕ New Design
+      </a>
+    </div>
 
-    <a href="{{ route('editor') }}" class="bg-blue-500 text-white px-4 py-2 rounded">+ New Design</a>
+    <div class="grid grid-cols-3 gap-6">
+      @forelse($designs as $design)
+        <div class="bg-white p-4 rounded-xl shadow">
+          @if($design->thumbnail_path)
+            <img src="{{ asset('storage/'.$design->thumbnail_path) }}" class="w-full rounded-lg mb-3">
+          @endif
 
-    <div class="grid grid-cols-3 gap-4 mt-4">
-      @foreach($designs as $design)
-        <div class="p-4 bg-white shadow rounded relative group">
-          <a href="{{ route('editor', $design->id) }}">
-            <img 
-              src="{{ $design->thumbnail_path ? asset('storage/'.$design->thumbnail_path) : 'https://via.placeholder.com/200' }}" 
-              class="w-full h-48 object-cover rounded"
-            >
-            <div class="mt-2 text-gray-700">{{ $design->title }}</div>
-          </a>
+          <h2 class="text-lg font-semibold truncate">{{ $design->title ?? 'Untitled Design' }}</h2>
 
-          {{-- 🗑 Tombol Delete --}}
-          <form 
-            action="{{ route('designs.destroy', $design->id) }}" 
-            method="POST" 
-            onsubmit="return confirm('Are you sure you want to delete this design?');"
-            class="absolute top-2 right-2"
-          >
-            @csrf
-            @method('DELETE')
-            <button 
-              type="submit" 
-              class="bg-red-500 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
-            >
-              Delete
-            </button>
-          </form>
+          <div class="mt-3 flex gap-2">
+            <a href="{{ route('editor', $design->id) }}" 
+               class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+              ✏️ Edit
+            </a>
+
+            <form action="{{ route('designs.destroy', $design->id) }}" method="POST" 
+                  onsubmit="return confirm('Hapus desain ini?')">
+              @csrf
+              @method('DELETE')
+              <button type="submit" class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
+                🗑️ Delete
+              </button>
+            </form>
+          </div>
         </div>
-      @endforeach
+      @empty
+        <p class="text-gray-500">Belum ada desain. Yuk buat desain baru!</p>
+      @endforelse
     </div>
   </div>
 </x-app-layout>
