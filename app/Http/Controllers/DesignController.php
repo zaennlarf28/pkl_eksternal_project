@@ -31,18 +31,34 @@ public function save(Request $request)
         'title' => 'required|string|max:255',
         'fabric_json' => 'required|string',
         'model_id' => 'nullable|exists:model_products,id',
+        'thumbnail' => 'nullable|string' // <= penting!
     ]);
 
+    // create atau find
     $design = $request->id
         ? auth()->user()->designs()->findOrFail($request->id)
         : auth()->user()->designs()->create();
 
+    // update basic fields
     $design->update([
-    'title' => $data['title'],
-    'fabric_json' => $data['fabric_json'],
-    'model_id' => $data['model_id'] ?? null,
-]);
+        'title' => $data['title'],
+        'fabric_json' => $data['fabric_json'],
+        'model_id' => $data['model_id'] ?? null,
+    ]);
 
+    // ===== SIMPAN THUMBNAIL CANVAS =====
+    if ($request->thumbnail) {
+
+        $image = $request->thumbnail;
+        $image = str_replace('data:image/png;base64,', '', $image);
+        $image = str_replace(' ', '+', $image);
+        $imageName = 'thumbnail_' . time() . '.png';
+
+        \Storage::disk('public')->put('designs/' . $imageName, base64_decode($image));
+
+        $design->thumbnail = 'designs/' . $imageName;
+        $design->save();
+    }
 
     return response()->json([
         'success' => true,

@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ModelProductController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ModelSelectController;
+use App\Http\Controllers\DesignSubmissionController;
+use App\Http\Controllers\Admin\DesignSubmissionController as AdminDesignCtrl;
 
 // ========================
 // 🏠 Halaman Utama
@@ -39,6 +41,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/design/save', [DesignController::class, 'save'])->name('design.save');
     Route::post('/design/upload', [DesignController::class, 'upload'])->name('design.upload');
 
+    // Kirim desain
+    Route::post('/designs/send-to-admin', [DesignSubmissionController::class, 'store'])->name('designs.send_to_admin');
+
     // 🧱 Preview 3D
     Route::get('/design/{design}/preview-3d/{model}', [DesignController::class, 'preview3D'])
         ->name('design.preview3d');
@@ -54,6 +59,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [AdminController::class, 'index'])->name('dashboard');
     Route::resource('categories', CategoryController::class);
     Route::resource('models', ModelProductController::class);
+     Route::get('/design-submissions', [AdminDesignCtrl::class, 'index'])->name('design_submissions.index');
+    Route::get('/design-submissions/{id}', [AdminDesignCtrl::class, 'show'])->name('design_submissions.show');
+    Route::post('/design-submissions/{id}/status', [AdminDesignCtrl::class, 'updateStatus'])->name('design_submissions.update_status');
+    Route::delete('/design-submissions/{id}', [AdminDesignCtrl::class, 'destroy'])->name('design_submissions.destroy');
+
 });
 
 // ========================

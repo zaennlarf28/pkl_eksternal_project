@@ -41,6 +41,15 @@
       </a>
     </li>
 
+    <li class="menu-item {{ request()->routeIs('admin.design_submissions.index') ? 'active' : '' }}">
+  <a href="{{ route('admin.design_submissions.index') }}" class="menu-link">
+    <i class="menu-icon tf-icons bx bx-image"></i>
+    <div>Design Customer</div>
+  </a>
+</li>
+
+
+
     <!-- Logout -->
     <li class="menu-header small text-uppercase"><span class="menu-header-text">Akun</span></li>
     <li class="menu-item">

@@ -28,7 +28,7 @@
             @endisset
 
             <!-- Page Content -->
-            <main>
+            <main class="pt-16 transition-all duration-300">
                 {{ $slot }}
             </main>
         </div>

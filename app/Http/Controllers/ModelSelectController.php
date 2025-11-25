@@ -20,6 +20,11 @@ class ModelSelectController extends Controller
             $query->where('category_id', $request->category);
         }
 
+         // 🔍 Filter pencarian
+    if ($request->search) {
+        $query->where('name', 'like', '%' . $request->search . '%');
+    }
+
         $models = $query->latest()->get();
 
         return view('user.models', compact('models', 'categories'));
